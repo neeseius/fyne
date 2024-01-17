@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/internal"
 	"fyne.io/fyne/v2/internal/app"
 	"fyne.io/fyne/v2/internal/cache"
 	"fyne.io/fyne/v2/internal/driver/common"
@@ -112,7 +113,7 @@ func (d *gLDriver) drawSingleFrame() {
 }
 
 func (d *gLDriver) runGL() {
-	eventTick := time.NewTicker(time.Second / 60)
+	eventTick := internal.NewTicker(time.Second / 60)
 
 	run.L.Lock()
 	run.flag = true
@@ -124,6 +125,7 @@ func (d *gLDriver) runGL() {
 		d.trayStart()
 	}
 	fyne.CurrentApp().Lifecycle().(*app.Lifecycle).TriggerStarted()
+	eventChan := d.waitEvents()
 	for {
 		select {
 		case <-d.done:
@@ -137,8 +139,8 @@ func (d *gLDriver) runGL() {
 			if f.done != nil {
 				f.done <- struct{}{}
 			}
-		case <-eventTick.C:
-			d.tryPollEvents()
+		case <-eventChan:
+			<-eventTick.C
 			windowsToRemove := 0
 			for _, win := range d.windowList() {
 				w := win.(*window)
@@ -236,12 +238,6 @@ func (d *gLDriver) repaintWindow(w *window) {
 func (d *gLDriver) startDrawThread() {
 	settingsChange := make(chan fyne.Settings)
 	fyne.CurrentApp().Settings().AddChangeListener(settingsChange)
-	var drawCh <-chan time.Time
-	if drawOnMainThread {
-		drawCh = make(chan time.Time) // don't tick when on M1
-	} else {
-		drawCh = time.NewTicker(time.Second / 60).C
-	}
 
 	go func() {
 		runtime.LockOSThread()
@@ -266,8 +262,6 @@ func (d *gLDriver) startDrawThread() {
 					c.applyThemeOutOfTreeObjects()
 					go c.reloadScale()
 				})
-			case <-drawCh:
-				d.drawSingleFrame()
 			}
 		}
 	}()
