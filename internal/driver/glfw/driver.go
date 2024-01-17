@@ -41,6 +41,7 @@ type gLDriver struct {
 	device     *glDevice
 	done       chan interface{}
 	drawDone   chan interface{}
+	dirty      chan struct{}
 
 	animation *animation.Runner
 
@@ -175,6 +176,7 @@ func NewGLDriver() fyne.Driver {
 	return &gLDriver{
 		done:      make(chan interface{}),
 		drawDone:  make(chan interface{}),
+		dirty:     make(chan struct{}),
 		animation: &animation.Runner{},
 	}
 }

@@ -62,6 +62,7 @@ func (r *Runner) Stop(a *fyne.Animation) {
 }
 
 func (r *Runner) runAnimations() {
+	return
 	draw := time.NewTicker(time.Second / 60)
 
 	go func() {

@@ -172,6 +172,8 @@ func (d *gLDriver) runGL() {
 
 				if drawOnMainThread {
 					d.drawSingleFrame()
+				} else {
+					d.dirty <- struct{}{}
 				}
 			}
 			if windowsToRemove > 0 {
@@ -262,6 +264,8 @@ func (d *gLDriver) startDrawThread() {
 					c.applyThemeOutOfTreeObjects()
 					go c.reloadScale()
 				})
+			case <-d.dirty:
+				d.drawSingleFrame()
 			}
 		}
 	}()
