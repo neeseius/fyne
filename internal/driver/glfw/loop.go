@@ -113,7 +113,7 @@ func (d *gLDriver) drawSingleFrame() {
 }
 
 func (d *gLDriver) runGL() {
-	eventTick := internal.NewTicker(time.Second / 60)
+	eventTick := internal.NewTicker(time.Second / 30)
 
 	run.L.Lock()
 	run.flag = true

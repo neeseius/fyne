@@ -959,7 +959,7 @@ func (d *gLDriver) createWindow(title string, decorate bool) fyne.Window {
 		ret.InitEventQueue()
 		go ret.RunEventQueue()
 
-		ret.canvas = newCanvas()
+		ret.canvas = newCanvas(d.dirty)
 		ret.canvas.context = ret
 		ret.SetIcon(ret.icon)
 		d.addWindow(ret)

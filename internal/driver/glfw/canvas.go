@@ -336,8 +336,9 @@ func (c *glCanvas) applyThemeOutOfTreeObjects() {
 	c.SetPadded(padded) // refresh the padding for potential theme differences
 }
 
-func newCanvas() *glCanvas {
+func newCanvas(ch chan<- struct{}) *glCanvas {
 	c := &glCanvas{scale: 1.0, texScale: 1.0, padded: true}
+	c.DirtyCh = ch
 	c.Initialize(c, c.overlayChanged)
 	c.setContent(&canvas.Rectangle{FillColor: theme.BackgroundColor()})
 	c.debug = fyne.CurrentApp().Settings().BuildType() == fyne.BuildDebug

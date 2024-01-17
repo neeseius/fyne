@@ -50,6 +50,7 @@ type Canvas struct {
 	// arbitrary number of fyne.CanvasObject for the rendering.
 	refreshQueue *async.CanvasObjectQueue
 	dirty        uint32 // atomic
+	DirtyCh      chan<- struct{}
 
 	mWindowHeadTree, contentTree, menuTree *renderCacheTree
 }
@@ -386,6 +387,10 @@ func (c *Canvas) CheckDirtyAndClear() bool {
 // SetDirty sets canvas dirty flag atomically.
 func (c *Canvas) SetDirty() {
 	atomic.AddUint32(&c.dirty, 1)
+	select {
+	case c.DirtyCh <- struct{}{}:
+	default:
+	}
 }
 
 // SetMenuTreeAndFocusMgr sets menu tree and focus manager.
