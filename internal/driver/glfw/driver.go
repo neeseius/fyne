@@ -176,7 +176,7 @@ func NewGLDriver() fyne.Driver {
 	return &gLDriver{
 		done:      make(chan interface{}),
 		drawDone:  make(chan interface{}),
-		dirty:     make(chan struct{}),
+		dirty:     make(chan struct{}, 2),
 		animation: &animation.Runner{},
 	}
 }

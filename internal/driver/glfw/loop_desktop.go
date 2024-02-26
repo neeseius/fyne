@@ -31,13 +31,16 @@ func (d *gLDriver) waitEvents() <-chan struct{} {
 		}
 	}()
 
-	ch := make(chan struct{})
+	ch := make(chan struct{}, 2)
 
 	go func() {
 		defer func() { close(ch) }()
 		for {
 			glfw.WaitEvents()
-			ch <- struct{}{}
+			select {
+			case ch <- struct{}{}:
+			default:
+			}
 		}
 	}()
 
